@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Resume</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding-top: 20px;
+            padding-bottom: 40px;
+        }
+
+        .form-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            color: #0d6efd;
+            border-bottom: 2px solid #0d6efd;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            margin-bottom: 20px;
+        }
+
+        .btn-add-section {
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+
+        .dynamic-section {
+            background-color: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #0d6efd;
+        }
+
+        .remove-btn {
+            margin-top: 10px;
+        }
+
+        textarea {
+            min-height: 100px;
+        }
+
+        .image-preview {
+            max-width: 150px;
+            max-height: 150px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .alert-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            width: 350px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Alert Container for error messages -->
+    {% if messages %}
+    <div id="message-container">
+        {% for message in messages %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+    <script>
+        setTimeout(() => {
+            const alertBox = document.getElementById('message-container');
+            if (alertBox) {
+                alertBox.style.display = 'none';
+            }
+        }, 2000);  // 2000 ms = 2 seconds
+    </script>
+    {% endif %}
+
+    <div class="container">
+        <div class="form-container">
+            <h1 class="text-center mb-4">Create Your Resume</h1>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="template_id" value="{{ template_id }}">
+<div class="mb-3">
+  <label for="json_upload" class="form-label">Import Resume JSON:</label>
+  <div class="d-flex gap-2">
+    <input type="file" id="json_upload" class="form-control flex-grow-0 w-auto" accept=".json">
+    <button type="button" class="btn btn-secondary btn-sm" onclick="loadJsonToForm()">Load JSON</button>
+  </div>
+
+<label for="profile_image" class="form-label">Upload Profile Image:</label>
+<input type="file" name="profile_image" id="profile_image" accept="image/*" class="form-control" required>
+
+                <!-- Personal Info Section -->
+                <h2 class="section-title">Personal Information</h2>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="full_name" class="form-label">Full Name</label>
+                        <input type="text" class="form-control" name="full_name"
+                            value="{{ personal_info.full_name|default_if_none:'' }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email"
+                            value="{{ personal_info.email|default_if_none:'' }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="phone" class="form-label">Phone</label>
+                        <input type="text" class="form-control" id="phone" name="phone"
+                            value="{{ personal_info.phone|default_if_none:'' }}">
+                        <span id="phoneError" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="address" class="form-label">Address</label>
+                        <textarea name="address" class="form-control"
+                            value="{{ personal_info.address|default_if_none:'' }}"></textarea>
+
+                    </div>
+                    <div class="col-md-6">
+                        <label for="linkedin" class="form-label">LinkedIn</label>
+                        <input type="url" class="form-control" name="linkedin"
+                            value="{{ personal_info.linkedin|default_if_none:'' }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="website" class="form-label">Profile Link</label>
+                        <input type="url" class="form-control" name="website"
+                            value="{{ personal_info.website|default_if_none:'' }}">
+                    </div>
+
+                </div>
+
+                <!-- Summary Section -->
+                <h2 class="section-title mt-4">Professional Summary</h2>
+<div class="mb-3 position-relative">
+    <textarea  name="summary" id="summary" rows="8" class="form-control">{{ original|striptags }}</textarea>
+    <!-- <button type="submit" name="action" value="ai_generate" class="btn btn-outline-primary position-absolute end-0 mt-2 me-2 d-flex align-items-center">
+        <i class="fas fa-magic me-2"></i> Enhance with AI
+    </button> -->
+</div>
+<div id="aiResult" class="mt-2"></div>
+   {% if groq_output or google_output or deepseek_output %}
+<div class="ai-suggestions-section mt-5">
+    <h2 class="section-title">AI-Powered Suggestions</h2>
+    <p class="section-subtitle mb-4">Our AI analyzed your profile and generated these professional summaries</p>
+    
+    <div class="original-input mb-4">
+        <h5>Your Original Summary:</h5>
+        <div class="original-content p-3 bg-light rounded">
+            {{ original|striptags  }}
+        </div>
+    </div>
+    
+    <div class="row g-4">
+        {% if groq_output %}
+        <div class="col-lg-4 col-md-6">
+            <div class="ai-card meta">
+                <div class="ai-card-header">
+                    <div class="ai-provider">
+                        <i class="fab fa-meta"></i>
+                        <span>Meta (Llama 3)</span>
+                    </div>
+                    <div class="ai-powered">
+                        <small>Powered by Groq</small>
+                    </div>
+                </div>
+                <div class="ai-card-content">
+                    {{ groq_output|safe }}
+                </div>
+                
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if google_output %}
+        <div class="col-lg-4 col-md-6">
+            <div class="ai-card google">
+                <div class="ai-card-header">
+                    <div class="ai-provider">
+                        <i class="fab fa-google"></i>
+                        <span>Google Gemini</span>
+                    </div>
+                    <div class="ai-powered">
+                        <small>Powered by Google AI</small>
+                    </div>
+                </div>
+                <div class="ai-card-content">
+                    {{ google_output|safe }}
+                </div>
+                
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if deepseek_output %}
+        <div class="col-lg-4 col-md-6">
+            <div class="ai-card openai">
+                <div class="ai-card-header">
+                    <div class="ai-provider">
+                        <i class="fas fa-robot"></i>
+                        <span>OpenAI ChatGPT</span>
+                    </div>
+                    <div class="ai-powered">
+                        <small>Powered by OpenAI</small>
+                    </div>
+                </div>
+                <div class="ai-card-content">
+                    {{ deepseek_output|safe }}
+                </div>
+               
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+
+{% endif %}
+
+                <!-- Education Section - Only one initially -->
+                <h2 class="section-title">Education</h2>
+                <div id="education-section">
+                    <div class="dynamic-section">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Degree</label>
+                                <input type="text" class="form-control" name="edu_degree[]">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Field of Study</label>
+                                <input type="text" class="form-control" name="edu_field[]">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Institution</label>
+                                <input type="text" class="form-control" name="edu_institution[]">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Start Date</label>
+                                <input type="date" class="form-control" name="edu_start[]">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">End Date</label>
+                                <input type="date" class="form-control" name="edu_end[]">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">GPA</label>
+                                <input type="number" class="form-control" name="edu_gpa[]">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-outline-primary btn-add-section"
+                    onclick="addEducationSection()">Add Education</button>
+
+                <!-- Skills Section -->
+                <h2 class="section-title">Skills</h2>
+                <div class="mb-3">
+                    <input type="text" class="form-control" name="skills" placeholder="Comma separated list of skills">
+                </div>
+
+                <!-- Work Experience Section - Only one initially -->
+                <h2 class="section-title">Work Experience</h2>
+                <div id="work-section">
+                    <div class="dynamic-section">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Job Title</label>
+                                <input type="text" class="form-control" name="work_title[]">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Company</label>
+                                <input type="text" class="form-control" name="work_company[]">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Location</label>
+                                <input type="text" class="form-control" name="work_location[]">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Start Date</label>
+                                <input type="date" class="form-control" name="work_start[]">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">End Date</label>
+                                <input type="date" class="form-control" name="work_end[]">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Description</label>
+                                <textarea class="form-control" name="work_responsibilities[]"></textarea>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-outline-primary btn-add-section" onclick="addWorkSection()">Add
+                    Work Experience</button>
+
+                <!-- Projects Section - Only one initially -->
+                <h2 class="section-title">Projects</h2>
+                <div id="project-section">
+                    <div class="dynamic-section">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Project Name</label>
+                                <input type="text" class="form-control" name="project_name[]">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Tools Used</label>
+                                <input type="text" class="form-control" name="project_tools[]">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Description</label>
+                                <textarea name="project_description[]" class="form-control" id=""></textarea>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label">Link</label>
+                                <input type="url" class="form-control" name="project_link[]">
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-outline-primary btn-add-section" onclick="addProjectSection()">Add
+                    Project</button>
+
+                <!-- Certifications Section - Only one initially -->
+                <h2 class="section-title">Certifications</h2>
+                <div id="certification-section">
+                    <div class="dynamic-section">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Certification Name</label>
+                                <input type="text" class="form-control" name="cert_name[]">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Issuing Organization</label>
+                                <input type="text" class="form-control" name="cert_issuer[]">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Date Earned</label>
+                                <input type="date" class="form-control" name="cert_date[]">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-outline-primary btn-add-section"
+                    onclick="addCertificationSection()">Add Certification</button>
+
+                <!-- Languages Section - Only one initially -->
+                <h2 class="section-title">Languages</h2>
+                <div id="language-section">
+                    <div class="dynamic-section">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Language</label>
+                                <input type="text" class="form-control" name="lang_name[]">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Proficiency Level</label>
+                                <input type="text" class="form-control" name="lang_level[]">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-outline-primary btn-add-section" onclick="addLanguageSection()">Add
+                    Language</button>
+
+                <!-- Interests Section -->
+                <h2 class="section-title">Interests</h2>
+                <div class="mb-3">
+                    <input type="text" class="form-control" name="interests"
+                        placeholder="Comma separated list of interests">
+                </div>
+
+
+                <div class="d-flex justify-content-between mt-4">
+
+                    <!-- <button type="submit" name="action" value="save" class="btn btn-success ">Save Resume</button> -->
+                    <button type="button" class="btn btn-outline-primary" onclick="downloadFormAsJSON()">Export as JSON</button>
+
+                    <button type="submit" name="action" value="preview" class="btn btn-primary ">Preview Resume</button>
+                   
+
+                </div>
+                
+            </form>
+        </div>
+    </div>
+
+
+<script src="https://cdn.ckeditor.com/ckeditor5/41.2.1/classic/ckeditor.js"></script>
+<script>
+// -------- Initialize CKEditor for summary and keep reference ----------
+let summaryEditor;
+ClassicEditor
+  .create(document.querySelector('#summary'))
+  .then(editor => {
+    summaryEditor = editor;
+    window.summaryEditor = editor; // global access for loader
+  })
+  .catch(error => console.error(error));
+
+// -------- Helper to set input/textarea by name and index ----------
+function setInputByName(name, value, idx = 0) {
+  const els = document.getElementsByName(name);
+  if (els && els[idx]) els[idx].value = value || '';
+}
+
+// -------- Remove dynamic children except first (template) ----------
+function removeDynamicSections(sectionId) {
+  const section = document.getElementById(sectionId);
+  if (!section) return;
+  while (section.children.length > 1) section.removeChild(section.lastElementChild);
+}
+
+// -------- Ensure minimum number dynamically-added sections exist ----------
+function ensureDynamicSections(sectionId, addFn, count) {
+  const section = document.getElementById(sectionId);
+  const currentCount = section ? section.children.length : 0;
+  for (let i = currentCount; i < count; i++) addFn();
+}
+
+// -------- Show profile image preview ----------
+function setImagePreview(base64Str) {
+  let preview = document.getElementById('profile_image_preview');
+  if (!preview) {
+    preview = document.createElement('img');
+    preview.id = 'profile_image_preview';
+    preview.className = 'image-preview';
+    const imgInput = document.getElementById('profile_image');
+    imgInput.insertAdjacentElement('afterend', preview);
+  }
+  preview.src = base64Str;
+  preview.style.display = "block";
+}
+
+// -------- Load JSON and populate form with dynamic sections ----------
+function loadJsonToForm() {
+  const fileInput = document.getElementById('json_upload');
+  if (!fileInput.files[0]) {
+    alert("Please select a JSON file first.");
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    try {
+      const data = JSON.parse(e.target.result);
+
+      // Personal Info
+      if (data.personal_info) {
+        for (const key in data.personal_info) {
+          setInputByName(key, data.personal_info[key]);
+        }
+      }
+
+      // Summary (CKEditor)
+      if (data.summary && window.summaryEditor) {
+        window.summaryEditor.setData(data.summary);
+      } else if (data.summary) {
+        document.getElementsByName('summary')[0].value = data.summary;
+      }
+
+      // Skills and Interests
+      if (data.skills) setInputByName('skills', data.skills.join(', '));
+      if (data.interests) setInputByName('interests', data.interests.join(', '));
+
+      // Education
+      if (Array.isArray(data.education)) {
+        removeDynamicSections('education-section');
+        ensureDynamicSections('education-section', addEducationSection, data.education.length);
+        data.education.forEach((edu, i) => {
+          setInputByName('edu_degree[]', edu.degree, i);
+          setInputByName('edu_field[]', edu.field, i);
+          setInputByName('edu_institution[]', edu.institution, i);
+          setInputByName('edu_start[]', edu.start_date, i);
+          setInputByName('edu_end[]', edu.end_date, i);
+          setInputByName('edu_gpa[]', edu.gpa, i);
+        });
+      }
+
+      // Work Experience
+      if (Array.isArray(data.work_experience)) {
+        removeDynamicSections('work-section');
+        ensureDynamicSections('work-section', addWorkSection, data.work_experience.length);
+        data.work_experience.forEach((work, i) => {
+          setInputByName('work_title[]', work.title, i);
+          setInputByName('work_company[]', work.company, i);
+          setInputByName('work_location[]', work.location, i);
+          setInputByName('work_start[]', work.start_date, i);
+          setInputByName('work_end[]', work.end_date, i);
+          setInputByName('work_responsibilities[]', (work.responsibilities || []).join('\n'), i);
+        });
+      }
+
+      // Projects
+      if (Array.isArray(data.projects)) {
+        removeDynamicSections('project-section');
+        ensureDynamicSections('project-section', addProjectSection, data.projects.length);
+        data.projects.forEach((proj, i) => {
+          setInputByName('project_name[]', proj.name, i);
+          setInputByName('project_tools[]', proj.tools, i);
+          setInputByName('project_description[]', proj.description, i);
+          setInputByName('project_link[]', proj.link, i);
+        });
+      }
+
+      // Certifications
+      if (Array.isArray(data.certifications)) {
+        removeDynamicSections('certification-section');
+        ensureDynamicSections('certification-section', addCertificationSection, data.certifications.length);
+        data.certifications.forEach((cert, i) => {
+          setInputByName('cert_name[]', cert.name, i);
+          setInputByName('cert_issuer[]', cert.issuer, i);
+          setInputByName('cert_date[]', cert.date, i);
+        });
+      }
+
+      // Languages
+      if (Array.isArray(data.languages)) {
+        removeDynamicSections('language-section');
+        ensureDynamicSections('language-section', addLanguageSection, data.languages.length);
+        data.languages.forEach((lang, i) => {
+          setInputByName('lang_name[]', lang.name, i);
+          setInputByName('lang_level[]', lang.level, i);
+        });
+      }
+
+      // Profile Image Base64
+      if (data.profile_image_base64) {
+        setImagePreview(data.profile_image_base64);
+        // Create or update hidden input to send base64 string on form submit
+        let hiddenImgInput = document.getElementById('profile_image_base64');
+        if (!hiddenImgInput) {
+          hiddenImgInput = document.createElement('input');
+          hiddenImgInput.type = 'hidden';
+          hiddenImgInput.name = 'profile_image_base64';
+          hiddenImgInput.id = 'profile_image_base64';
+          document.querySelector('form').appendChild(hiddenImgInput);
+        }
+        hiddenImgInput.value = data.profile_image_base64;
+      }
+
+      alert("JSON loaded and form populated successfully.");
+    }
+    catch (err) {
+      alert('Failed to parse JSON: ' + err);
+    }
+  };
+  reader.readAsText(fileInput.files[0]);
+}
+
+// -------- Export the form data to JSON and trigger download ----------
+function downloadFormAsJSON() {
+  let data = {};
+
+  // Personal Info
+  data.personal_info = {
+    full_name: document.getElementsByName("full_name")[0]?.value || '',
+    email: document.getElementsByName("email")[0]?.value || '',
+    phone: document.getElementsByName("phone")[0]?.value || '',
+    address: document.getElementsByName("address")[0]?.value || '',
+    linkedin: document.getElementsByName("linkedin")[0]?.value || '',
+    website: document.getElementsByName("website")[0]?.value || ''
+  };
+
+  // Summary (CKEditor preferred)
+  if (window.summaryEditor) {
+    data.summary = window.summaryEditor.getData() || '';
+  } else {
+    data.summary = document.getElementsByName("summary")[0]?.value || '';
+  }
+
+  // Skills & Interests
+  data.skills = (document.getElementsByName("skills")[0]?.value || '').split(',').map(s => s.trim()).filter(Boolean);
+  data.interests = (document.getElementsByName("interests")[0]?.value || '').split(',').map(s => s.trim()).filter(Boolean);
+
+  // Education
+  const deg = Array.from(document.getElementsByName("edu_degree[]")).map(el => el.value);
+  const field = Array.from(document.getElementsByName("edu_field[]")).map(el => el.value);
+  const inst = Array.from(document.getElementsByName("edu_institution[]")).map(el => el.value);
+  const start = Array.from(document.getElementsByName("edu_start[]")).map(el => el.value);
+  const end = Array.from(document.getElementsByName("edu_end[]")).map(el => el.value);
+  const gpa = Array.from(document.getElementsByName("edu_gpa[]")).map(el => el.value);
+  data.education = deg.map((d, i) => ({
+    degree: d,
+    field: field[i],
+    institution: inst[i],
+    start_date: start[i],
+    end_date: end[i],
+    gpa: gpa[i]
+  })).filter(e => e.degree || e.field || e.institution);
+
+  // Work Experience
+  const wtitle = Array.from(document.getElementsByName("work_title[]")).map(el => el.value);
+  const wcompany = Array.from(document.getElementsByName("work_company[]")).map(el => el.value);
+  const wlocation = Array.from(document.getElementsByName("work_location[]")).map(el => el.value);
+  const wstart = Array.from(document.getElementsByName("work_start[]")).map(el => el.value);
+  const wend = Array.from(document.getElementsByName("work_end[]")).map(el => el.value);
+  const wdesc = Array.from(document.getElementsByName("work_responsibilities[]")).map(el => el.value);
+
+  data.work_experience = wtitle.map((t, i) => ({
+    title: t,
+    company: wcompany[i],
+    location: wlocation[i],
+    start_date: wstart[i],
+    end_date: wend[i],
+    responsibilities: (wdesc[i] || '').split('\n').map(x => x.trim()).filter(Boolean)
+  })).filter(e => e.title || e.company || e.location);
+
+  // Projects
+  const pname = Array.from(document.getElementsByName("project_name[]")).map(el => el.value);
+  const ptools = Array.from(document.getElementsByName("project_tools[]")).map(el => el.value);
+  const pdesc = Array.from(document.getElementsByName("project_description[]")).map(el => el.value);
+  const plink = Array.from(document.getElementsByName("project_link[]")).map(el => el.value);
+
+  data.projects = pname.map((n, i) => ({
+    name: n,
+    tools: ptools[i],
+    description: pdesc[i],
+    link: plink[i]
+  })).filter(e => e.name || e.tools || e.description);
+
+  // Certifications
+  const cname = Array.from(document.getElementsByName("cert_name[]")).map(el => el.value);
+  const cissuer = Array.from(document.getElementsByName("cert_issuer[]")).map(el => el.value);
+  const cdate = Array.from(document.getElementsByName("cert_date[]")).map(el => el.value);
+  data.certifications = cname.map((n, i) => ({
+    name: n,
+    issuer: cissuer[i],
+    date: cdate[i]
+  })).filter(e => e.name || e.issuer);
+
+  // Languages
+  const lname = Array.from(document.getElementsByName("lang_name[]")).map(el => el.value);
+  const llevel = Array.from(document.getElementsByName("lang_level[]")).map(el => el.value);
+  data.languages = lname.map((n, i) => ({
+    name: n,
+    level: llevel[i]
+  })).filter(e => e.name || e.level);
+
+  // Handle profile image asynchronously
+  const imageInput = document.getElementById('profile_image');
+  if (imageInput && imageInput.files.length > 0) {
+    const file = imageInput.files[0];
+    const reader = new FileReader();
+    reader.onload = function (event) {
+      data.profile_image_base64 = event.target.result;
+      downloadJSONFile(data);
+    };
+    reader.readAsDataURL(file);
+  } else {
+    data.profile_image_base64 = "";
+    downloadJSONFile(data);
+  }
+
+  // Utility: Download JSON file
+  function downloadJSONFile(jsonData) {
+    const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = "resume.json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+}
+
+// --------- Your section adders for dynamic multi-fields ----------
+function addEducationSection() {
+  const html = `
+  <div class="dynamic-section">
+    <div class="row g-3">
+      <div class="col-md-6"><label class="form-label">Degree</label><input type="text" name="edu_degree[]" class="form-control"></div>
+      <div class="col-md-6"><label class="form-label">Field of Study</label><input type="text" name="edu_field[]" class="form-control"></div>
+      <div class="col-md-6"><label class="form-label">Institution</label><input type="text" name="edu_institution[]" class="form-control"></div>
+      <div class="col-md-3"><label class="form-label">Start Date</label><input type="date" name="edu_start[]" class="form-control"></div>
+      <div class="col-md-3"><label class="form-label">End Date</label><input type="date" name="edu_end[]" class="form-control"></div>
+      <div class="col-md-3"><label class="form-label">GPA</label><input type="number" step="0.01" name="edu_gpa[]" class="form-control"></div>
+    </div>
+    <button type="button" class="btn btn-outline-danger btn-sm remove-btn" onclick="this.parentElement.remove()">Remove</button>
+  </div>`;
+  document.getElementById('education-section').insertAdjacentHTML('beforeend', html);
+}
+
+function addWorkSection() {
+  const html = `
+  <div class="dynamic-section">
+    <div class="row g-3">
+      <div class="col-md-6"><label class="form-label">Job Title</label><input type="text" name="work_title[]" class="form-control"></div>
+      <div class="col-md-6"><label class="form-label">Company</label><input type="text" name="work_company[]" class="form-control"></div>
+      <div class="col-md-6"><label class="form-label">Location</label><input type="text" name="work_location[]" class="form-control"></div>
+      <div class="col-md-3"><label class="form-label">Start Date</label><input type="date" name="work_start[]" class="form-control"></div>
+      <div class="col-md-3"><label class="form-label">End Date</label><input type="date" name="work_end[]" class="form-control"></div>
+      <div class="col-12"><label class="form-label">Description</label><textarea name="work_responsibilities[]" class="form-control"></textarea></div>
+    </div>
+    <button type="button" class="btn btn-outline-danger btn-sm remove-btn" onclick="this.parentElement.remove()">Remove</button>
+  </div>`;
+  document.getElementById('work-section').insertAdjacentHTML('beforeend', html);
+}
+
+function addProjectSection() {
+  const html = `
+  <div class="dynamic-section">
+    <div class="row g-3">
+      <div class="col-md-6"><label class="form-label">Project Name</label><input type="text" name="project_name[]" class="form-control"></div>
+      <div class="col-md-6"><label class="form-label">Tools Used</label><input type="text" name="project_tools[]" class="form-control"></div>
+      <div class="col-12"><label class="form-label">Description</label><textarea name="project_description[]" class="form-control"></textarea></div>
+      <div class="col-md-12"><label class="form-label">Link</label><input type="url" name="project_link[]" class="form-control"></div>
+    </div>
+    <button type="button" class="btn btn-outline-danger btn-sm remove-btn" onclick="this.parentElement.remove()">Remove</button>
+  </div>`;
+  document.getElementById('project-section').insertAdjacentHTML('beforeend', html);
+}
+
+function addCertificationSection() {
+  const html = `
+  <div class="dynamic-section">
+    <div class="row g-3">
+      <div class="col-md-6"><label class="form-label">Certification Name</label><input type="text" name="cert_name[]" class="form-control"></div>
+      <div class="col-md-6"><label class="form-label">Issuing Organization</label><input type="text" name="cert_issuer[]" class="form-control"></div>
+      <div class="col-md-6"><label class="form-label">Date Earned</label><input type="date" name="cert_date[]" class="form-control"></div>
+    </div>
+    <button type="button" class="btn btn-outline-danger btn-sm remove-btn" onclick="this.parentElement.remove()">Remove</button>
+  </div>`;
+  document.getElementById('certification-section').insertAdjacentHTML('beforeend', html);
+}
+
+function addLanguageSection() {
+  const html = `
+  <div class="dynamic-section">
+    <div class="row g-3">
+      <div class="col-md-6"><label class="form-label">Language</label><input type="text" name="lang_name[]" class="form-control"></div>
+      <div class="col-md-6"><label class="form-label">Proficiency Level</label><input type="text" name="lang_level[]" class="form-control"></div>
+    </div>
+    <button type="button" class="btn btn-outline-danger btn-sm remove-btn" onclick="this.parentElement.remove()">Remove</button>
+  </div>`;
+  document.getElementById('language-section').insertAdjacentHTML('beforeend', html);
+}
+</script>
+
+
+    <!-- Bootstrap 5 JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom JavaScript for dynamic sections -->
+    <script>
+
+
+
+        // Function to add a new education section
+        function addEducationSection() {
+            const newSection = `
+                <div class="dynamic-section">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Degree</label>
+                            <input type="text" class="form-control" name="edu_degree[]">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Field of Study</label>
+                            <input type="text" class="form-control" name="edu_field[]">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Institution</label>
+                            <input type="text" class="form-control" name="edu_institution[]">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Start Date</label>
+                            <input type="date" class="form-control" name="edu_start[]">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">End Date</label>
+                            <input type="date" class="form-control" name="edu_end[]">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">GPA</label>
+                            <input type="number" class="form-control" name="edu_gpa[]">
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-outline-danger btn-sm remove-btn" onclick="this.parentElement.remove()">Remove</button>
+                </div>
+            `;
+            document.getElementById('education-section').insertAdjacentHTML('beforeend', newSection);
+        }
+
+        // Function to add a new work experience section
+        function addWorkSection() {
+            const newSection = `
+                <div class="dynamic-section">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Job Title</label>
+                            <input type="text" class="form-control" name="work_title[]">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Company</label>
+                            <input type="text" class="form-control" name="work_company[]">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Location</label>
+                            <input type="text" class="form-control" name="work_location[]">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Start Date</label>
+                            <input type="date" class="form-control" name="work_start[]">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">End Date</label>
+                            <input type="date" class="form-control" name="work_end[]">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control" name="work_responsibilities[]"></textarea>
+                        </div>
+                        
+                    </div>
+                    <button type="button" class="btn btn-outline-danger btn-sm remove-btn" onclick="this.parentElement.remove()">Remove</button>
+                </div>
+            `;
+            document.getElementById('work-section').insertAdjacentHTML('beforeend', newSection);
+        }
+
+        // Function to add a new project section
+        function addProjectSection() {
+            const newSection = `
+                <div class="dynamic-section">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Project Name</label>
+                            <input type="text" class="form-control" name="project_name[]">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Tools Used</label>
+                            <input type="text" class="form-control" name="project_tools[]">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Description</label>
+                            <input type="text" class="form-control" name="project_description[]">
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Link</label>
+                            <input type="url" class="form-control" name="project_link[]">
+                        </div>
+                       
+                    </div>
+                    <button type="button" class="btn btn-outline-danger btn-sm remove-btn" onclick="this.parentElement.remove()">Remove</button>
+                </div>
+            `;
+            document.getElementById('project-section').insertAdjacentHTML('beforeend', newSection);
+        }
+
+        // Function to add a new certification section
+        function addCertificationSection() {
+            const newSection = `
+                <div class="dynamic-section">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Certification Name</label>
+                            <input type="text" class="form-control" name="cert_name[]">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Issuing Organization</label>
+                            <input type="text" class="form-control" name="cert_issuer[]">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Date Earned</label>
+                            <input type="date" class="form-control" name="cert_date[]">
+                        </div>
+                
+                    </div>
+                    <button type="button" class="btn btn-outline-danger btn-sm remove-btn" onclick="this.parentElement.remove()">Remove</button>
+                </div>
+            `;
+            document.getElementById('certification-section').insertAdjacentHTML('beforeend', newSection);
+        }
+
+        // Function to add a new language section
+        function addLanguageSection() {
+            const newSection = `
+                <div class="dynamic-section">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Language</label>
+                            <input type="text" class="form-control" name="lang_name[]">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Proficiency Level</label>
+                            <input type="text" class="form-control" name="lang_level[]">
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-outline-danger btn-sm remove-btn" onclick="this.parentElement.remove()">Remove</button>
+                </div>
+            `;
+            document.getElementById('language-section').insertAdjacentHTML('beforeend', newSection);
+        }
+
+
+        //phone number check
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.querySelector('form'); // Adjust selector if needed
+            const phoneInput = document.getElementById('phone');
+            const phoneError = document.getElementById('phoneError');
+
+            form.addEventListener('submit', function (e) {
+                const phoneValue = phoneInput.value.trim();
+                const phonePattern = /^[6-9]\d{9}$/;
+
+                if (!phonePattern.test(phoneValue)) {
+                    e.preventDefault(); // Prevent form submission
+                    phoneError.textContent = "Enter a valid 10-digit Indian number starting with 6-9.";
+                    phoneInput.classList.add("is-invalid");
+                } else {
+                    phoneError.textContent = "";
+                    phoneInput.classList.remove("is-invalid");
+                }
+            });
+        });
+    </script>
+    <script src="https://cdn.ckeditor.com/ckeditor5/41.2.1/classic/ckeditor.js"></script>
+
+<style>
+    .ai-suggestions-section {
+        background: #f8f9fa;
+        padding: 2.5rem;
+        border-radius: 12px;
+        margin-top: 3rem;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .section-title {
+        font-family: 'Playfair Display', serif;
+        font-weight: 600;
+        color: #213555;
+        margin-bottom: 0.5rem;
+        font-size: 1.8rem;
+    }
+    
+    .section-subtitle {
+        color: #6c757d;
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .original-input h5 {
+        font-weight: 500;
+        color: #4F709C;
+        margin-bottom: 0.5rem;
+    }
+    
+    .original-content {
+        border-left: 3px solid #D8C4B6;
+        font-style: italic;
+        color: #495057;
+    }
+    
+    .ai-card {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        border-top: 4px solid #4F709C;
+        transition: all 0.3s ease;
+    }
+    
+    .ai-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    
+    .ai-card.meta {
+        border-top-color: #1877F2;
+    }
+    
+    .ai-card.google {
+        border-top-color: #34A853;
+    }
+    
+    .ai-card.openai {
+        border-top-color: #10A37F;
+    }
+    
+    .ai-card-header {
+        padding: 1.25rem 1.5rem 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .ai-provider {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 600;
+        color: #213555;
+    }
+    
+    .ai-provider i {
+        font-size: 1.25rem;
+    }
+    
+    .ai-powered small {
+        color: #6c757d;
+        font-size: 0.75rem;
+    }
+    
+    .ai-card-content {
+        padding: 1rem 1.5rem;
+        flex-grow: 1;
+        color: #495057;
+        line-height: 1.7;
+    }
+    
+    .ai-card-footer {
+        padding: 1rem 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        border-top: 1px solid rgba(0,0,0,0.05);
+        background: #f8fafc;
+    }
+    
+    .copy-btn, .use-btn {
+        font-size: 0.8rem;
+        padding: 0.35rem 0.75rem;
+    }
+</style>
+
+
+
+</body>
+
+</html>

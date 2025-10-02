@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <title>{{ personal_info.full_name }} - Resume</title>
+    <style>
+        body { font-family: 'Quicksand', 'Arial Rounded MT Bold', Arial, sans-serif; background: #fff; color: #222; margin: 24mm; }
+        .resume-wrap { max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 0; box-shadow: none; padding: 0; overflow: hidden; }
+        .header { background: none; padding: 36px 48px; color: #222; border-bottom: none; }
+        .header h1 { margin: 0; font-size: 2.7em; font-weight: 700; letter-spacing: 2px; color: #222; }
+        .header p { margin: 8px 0; color: #444; font-size: 1.1em; }
+        .main { display: flex; gap: 32px; padding: 40px 48px; }
+        .left, .right { flex: 1; }
+        .section { margin-bottom: 32px; border-radius: 0; padding: 18px 22px; background: none; }
+        .section h2 { font-size: 1.15em; font-weight: 700; margin-bottom: 10px; letter-spacing: 1px; border-bottom: none; }
+        .yellow { background: #fffbe6; }
+        .blue { background: #e6f0ff; }
+        .green { background: #e6fff2; }
+        .pink { background: #ffe6f7; }
+        .purple { background: #f3e6ff; }
+        .orange { background: #fff3e6; }
+        .gray { background: #f6f6f6; }
+        ul { margin: 0; padding-left: 22px; }
+        li { margin-bottom: 7px; }
+    </style>
+</head>
+<body>
+<div class="resume-wrap">
+    <div class="header">
+        <h1>{{ personal_info.full_name }}</h1>
+        <p>Email: {{ personal_info.email }} | Phone: {{ personal_info.phone }}</p>
+        {% if personal_info.address %}<p>Address: {{ personal_info.address }}</p>{% endif %}
+        {% if personal_info.linkedin %}<p>LinkedIn: {{ personal_info.linkedin }}</p>{% endif %}
+        {% if personal_info.website %}<p>Website: {{ personal_info.website }}</p>{% endif %}
+    </div>
+    <div class="main">
+        <div class="left">
+            {% if summary %}
+            <div class="section yellow">
+                <h2>Professional Summary</h2>
+                <p>{{ summary|safe }}</p>
+            </div>
+            {% endif %}
+            {% if education %}
+            <div class="section blue">
+                <h2>Education</h2>
+                <ul>
+                    {% for edu in education %}
+                    <li>
+                        <strong>{{ edu.degree }}</strong> in {{ edu.field }}<br>
+                        {{ edu.institution }} ({{ edu.start_date }} - {{ edu.end_date }})
+                        {% if edu.gpa %}<br>GPA: {{ edu.gpa }}{% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            {% if work_experience %}
+            <div class="section green">
+                <h2>Work Experience</h2>
+                <ul>
+                    {% for job in work_experience %}
+                    <li>
+                        <strong>{{ job.title }}</strong> at {{ job.company }}{% if job.location %}, {{ job.location }}{% endif %} ({{ job.start_date }} - {{ job.end_date }})
+                        <ul>
+                            {% for resp in job.responsibilities %}
+                            <li>{{ resp }}</li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            {% if projects %}
+            <div class="section pink">
+                <h2>Projects</h2>
+                <ul>
+                    {% for project in projects %}
+                    <li>
+                        <strong>{{ project.name }}</strong>: {{ project.description }}<br>
+                        {% if project.tools %}Tools: {{ project.tools }}<br>{% endif %}
+                        {% if project.link %}<a href="{{ project.link }}">View Project</a>{% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            {% if skills %}
+            <div class="section purple">
+                <h2>Skills</h2>
+                <ul>
+                    {% for skill in skills %}
+                    <li>{{ skill }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+        <div class="right">
+            {% if certifications %}
+            <div class="section orange">
+                <h2>Certifications</h2>
+                <ul>
+                    {% for cert in certifications %}
+                    <li>{{ cert.name }} - {{ cert.issuer }} ({{ cert.date }})</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            {% if awards %}
+            <div class="section gray">
+                <h2>Awards & Achievements</h2>
+                <ul>
+                    {% for award in awards %}
+                    <li>{{ award.title }} - {{ award.organization }} ({{ award.year }}){% if award.description %}: {{ award.description }}{% endif %}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            {% if volunteering %}
+            <div class="section yellow">
+                <h2>Volunteering & Extracurricular Activities</h2>
+                <ul>
+                    {% for v in volunteering %}
+                    <li><strong>{{ v.role }}</strong> at {{ v.organization }} ({{ v.dates }})<br>{{ v.description }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            {% if languages %}
+            <div class="section blue">
+                <h2>Languages</h2>
+                <ul>
+                    {% for lang in languages %}
+                    <li>{{ lang.name }} – {{ lang.level }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            {% if publications %}
+            <div class="section green">
+                <h2>Publications</h2>
+                <ul>
+                    {% for pub in publications %}
+                    <li>{{ pub.title }} - {{ pub.journal }} ({{ pub.date }}) {% if pub.link %}<a href="{{ pub.link }}">Link</a>{% endif %}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            {% if interests %}
+            <div class="section pink">
+                <h2>Interests / Hobbies</h2>
+                <ul>
+                    {% for interest in interests %}
+                    <li>{{ interest }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            {% if references %}
+            <div class="section purple">
+                <h2>References</h2>
+                <ul>
+                    {% for ref in references %}
+                    <li>
+                        {% if ref.available_on_request %}Available on request{% else %}
+                        {{ ref.name }}, {{ ref.designation }}, {{ ref.company }}, {{ ref.contact }}
+                        {% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+<!-- Buttons -->
+{% if not is_pdf %}
+<!-- Sticky Bottom Toolbar -->
+<div class="fixed-bottom bg-white border-top py-2 shadow no-print text-center">
+  <div class="container d-flex justify-content-center align-items-center flex-wrap gap-3">
+
+   <!-- Button Row -->
+<div class="d-flex align-items-center justify-content-center gap-3 flex-wrap">
+
+  <!-- Edit Button -->
+  <a href="{% url 'edit_resume' resume.id template_id %}" class="btn btn-warning d-flex align-items-center">
+    <i class="fas fa-edit me-2 "></i>Edit Resume
+  </a>   
+
+  <!-- Download Dropdown -->
+  <div class="btn-group">
+    <button type="button" class="btn btn-success dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown" aria-expanded="false">
+      <i class="fas fa-download me-2"></i>Download
+    </button>
+    <ul class="dropdown-menu">
+      <li>
+        <a class="dropdown-item" href="{% url 'download_resume_pdf' resume.id template_id %}">
+          <i class="fas fa-file-pdf me-2 text-danger"></i>PDF Format
+        </a>
+      </li>
+      <li>
+        <a class="dropdown-item" href="{% url 'download_word_resume' resume.id template_id %}">
+          <i class="fas fa-file-word me-2 text-primary"></i>Word Format
+        </a>
+      </li>
+    </ul>
+  </div>
+
+</div>
+
+    <!-- Color Picker -->
+    <label for="colorPicker" class="ms-2 mb-0"><strong>Choose Resume Color:</strong></label>
+    <input type="color" id="colorPicker" value="#c46531" class="form-control form-control-color ms-2" title="Choose your color">
+  </div>
+</div>
+{% endif %}
+
+</body>
+</html>
+
+<style>
+  :root {
+  --theme-color: #c46531;
+  --secondary-color: #c46531;
+}
+
+  /* Resume styles using the variable */
+  .user-name {
+    color: var(--theme-color);
+    font-weight: bold;
+  }
+
+  .section-title {
+    color: var(--theme-color);
+    border-bottom: 2px solid var(--theme-color);
+    font-weight: bold;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+  }
+
+  hr {
+    border-top: 2px solid var(--theme-color);
+  }
+
+  .custom-color {
+    color: var(--theme-color);
+  }
+
+  .custom-border {
+    border-color: var(--theme-color) !important;
+  }
+</style>
+
+<script>
+  const colorPicker = document.getElementById("colorPicker");
+
+  colorPicker.addEventListener("input", function () {
+    const selectedColor = this.value;
+    document.documentElement.style.setProperty('--theme-color', selectedColor);
+    document.documentElement.style.setProperty('--secondary-color', selectedColor);
+  });
+</script>
+
+</body>
+</html> 

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classic Blue Sidebar Resume</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+      <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #e8ecef;
+}
+
+.sidebar {
+    min-height: 100vh;
+    background: #2b4970 !important; /* Deep blue */
+    color: #fff;
+}
+
+.sidebar h4 {
+    font-size: 1.15rem;
+    padding: 0.2rem 0.7rem;
+    background: rgba(255,255,255,0.11);
+    border-radius: 15px;
+    margin-bottom: 0.7rem;
+    margin-top: 1.3rem;
+    letter-spacing: 0.05em;
+}
+
+.container-fluid {
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.sidebar p,
+.sidebar ul,
+.sidebar li {
+    font-size: 0.96rem;
+}
+
+.resume-title {
+    font-size: 2.8rem;
+    background: #2b4970;
+    color: #fff;
+    border-radius: 25px 25px 25px 25px;
+    display: inline-block;
+    width: 55%;
+    margin: auto;
+    box-shadow: 0 2px 12px #2b497023;
+    font-weight: 600;
+}
+
+.resume-subtitle {
+    font-size: 1.45rem;
+    background: #2b4970;
+    color: #fff;
+    border-radius: 15px 15px 15px 15px;
+    width: 58%;
+    margin: auto;
+    font-weight: 500;
+}
+
+main .company {
+    color: #2b4970;
+    font-weight: 500;
+}
+
+main .years {
+    color: #444d5e;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+main section ul {
+    padding-left: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row min-vh-100">
+            <!-- Sidebar -->
+            <aside class="col-md-3 bg-primary text-white d-flex flex-column p-4 sidebar">
+                <h4 class="mb-4 mt-2">DETAILS</h4>
+                <p class="mb-1">{% if personal_info.address %}{{ personal_info.address }}<br>{% endif %}</p>
+                <p class="mb-1"> {{ personal_info.phone }}</p>
+                <p class="mb-4">{{ personal_info.email }}</p>
+                <p class="mb-4">{% if personal_info.linkedin %}<a href="{{ personal_info.linkedin }}" >{{ personal_info.linkedin }}</a><br>{% endif %}</p>
+                
+                <h4 class="mb-3">Professional Summary</h4>
+                <p class="mb-4 small">   <!-- Summary -->
+    {% if summary %}
+    <div class="section-title"></div>
+    <p>{{ summary|safe }}</p>
+    {% endif %}</p>
+                
+                <h4 class="mb-3">SOFTWARE</h4>
+                <p class="mb-4">{% if skills and skills.0 %}
+    {% for skill in skills %}
+    <span class="skill-badge"><li>{{ skill }}</li></span>
+    {% endfor %}
+    {% endif %}
+</p>
+                
+                <h4 class="mb-3">Languages</h4>
+                <p class="mb-2"> {% if languages and languages.0 %}
+    <ul>
+        {% for lang in languages %}
+        <li>{{ lang.name }}{{ lang.level }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}</p>
+                
+                <h4 class="mb-3">HOBBIES</h4>
+                <p>    {% if interests and interests.0 %}
+    <ul>
+        {% for interest in interests %}
+        <li>{{ interest }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}</p>
+            </aside>
+            <!-- Main Content -->
+            <main class="col-md-9 bg-light p-5">
+                <div class="text-center">
+                    <h1 class="resume-title py-3">{{ personal_info.full_name }}</h1>
+                    <h3 class="resume-subtitle py-2 mt-5 mb-5">Professional Experience</h3>
+                </div>
+                <section class="mb-4">
+                        {% if work_experience and work_experience.0 %}
+                    <div class="d-flex justify-content-between">
+                            {% for job in work_experience %}
+                        <div>
+                            <h5 class="fw-bold mb-1">{{ job.title }}</h5>
+                            <span class="company">{{ job.company }}{% if job.location %}, {{ job.location }}{% endif %}<br> <span class="years">{{ job.start_date }}{{ job.end_date }}</span>
+        </span>
+        {% if job.responsibilities %}
+        <ul>
+            {% for r in job.responsibilities %}
+            <li>{{ r }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+                        </div>
+                           
+                       
+                     {% endfor %}
+                      {% endif %}</div>
+                    
+                </section>
+    <!-- Projects -->
+    {% if projects and projects.0 %}
+    
+                    <h3 class="resume-subtitle text-center py-2 mt-5 mb-5">Projects</h3>
+
+    {% for p in projects %}
+    <p>
+        <strong>{{ p.name }}</strong>{% if p.tools %} <span class="text-muted">({{ p.tools }})</span>{% endif %}<br>
+        {% if p.link %}<a href="{{ p.link }}" target="_blank">View Project</a><br>{% endif %}
+        {{ p.description }}
+    </p>
+    {% endfor %}
+    {% endif %}
+                {% if education and education.0 %}
+                <h3 class="resume-subtitle text-center py-2 mt-5 mb-4">Education</h3>
+                <section>
+                     {% for edu in education %}
+        {% if edu.degree or edu.field or edu.institution or edu.start_date or edu.end_date or edu.gpa %}
+                    <div class="d-flex justify-content-between">
+                        <span class="fw-bold">{% if edu.degree or edu.field %}
+                    <strong>{{ edu.degree }} {{ edu.field }}</strong><br> {% if edu.institution %}{{ edu.institution }}<br>{% endif %}
+                {% endif %}</span>
+                        <span class="years"> {% if edu.start_date or edu.end_date %}
+                    {{ edu.start_date }} - {{ edu.end_date }}<br>
+                {% endif %}
+            {% if edu.gpa %}<em>GPA: {{ edu.gpa }}</em>{% endif %}</span>
+                    </div>
+                   
+                           {% endif %}
+    {% endfor %}
+                </section>
+                {% endif %}
+                    <!-- Certifications -->
+    {% if certifications and certifications.0 %}
+ <h3 class="resume-subtitle text-center py-2 mt-5 mb-4">Certifications</h3>
+
+    <ul>
+        {% for cert in certifications %}
+        <li><strong>{{ cert.name }}</strong><br> {{ cert.issuer }} ({{ cert.date }})</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+            </main>
+        </div>
+    </div>
+    Classic Blue Sidebar
+
+    <!-- Buttons -->
+{% if not is_pdf %}
+<!-- Sticky Bottom Toolbar -->
+<div class="fixed-bottom bg-white border-top py-2 shadow no-print text-center">
+  <div class="container d-flex justify-content-center align-items-center flex-wrap gap-3">
+
+   <!-- Button Row -->
+<div class="d-flex align-items-center justify-content-center gap-3 flex-wrap">
+
+  <!-- Edit Button -->
+  <a href="{% url 'edit_resume' resume.id template_id %}" class="btn btn-warning d-flex align-items-center">
+    <i class="fas fa-edit me-2 "></i>Edit Resume
+  </a>   
+
+  <!-- Download Dropdown -->
+  <div class="btn-group">
+    <button type="button" class="btn btn-success dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown" aria-expanded="false">
+      <i class="fas fa-download me-2"></i>Download
+    </button>
+    <ul class="dropdown-menu">
+      <li>
+        <a class="dropdown-item" href="{% url 'download_resume_pdf' resume.id template_id %}">
+          <i class="fas fa-file-pdf me-2 text-danger"></i>PDF Format
+        </a>
+      </li>
+      <li>
+        <a class="dropdown-item" href="{% url 'download_word_resume' resume.id template_id %}">
+          <i class="fas fa-file-word me-2 text-primary"></i>Word Format
+        </a>
+      </li>
+    </ul>
+  </div>
+
+</div>
+
+    <!-- Color Picker -->
+    <label for="colorPicker" class="ms-2 mb-0"><strong>Choose Resume Color:</strong></label>
+    <input type="color" id="colorPicker" value="#c46531" class="form-control form-control-color ms-2" title="Choose your color">
+  </div>
+</div>
+{% endif %}
+
+</body>
+</html>
+
+<style>
+  :root {
+  --theme-color: #c46531;
+  --secondary-color: #c46531;
+}
+
+  /* Resume styles using the variable */
+  .user-name {
+    color: var(--theme-color);
+    font-weight: bold;
+  }
+
+  .section-title {
+    color: var(--theme-color);
+    border-bottom: 2px solid var(--theme-color);
+    font-weight: bold;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+  }
+
+  hr {
+    border-top: 2px solid var(--theme-color);
+  }
+
+  .custom-color {
+    color: var(--theme-color);
+  }
+
+  .custom-border {
+    border-color: var(--theme-color) !important;
+  }
+</style>
+
+<script>
+  const colorPicker = document.getElementById("colorPicker");
+
+  colorPicker.addEventListener("input", function () {
+    const selectedColor = this.value;
+    document.documentElement.style.setProperty('--theme-color', selectedColor);
+    document.documentElement.style.setProperty('--secondary-color', selectedColor);
+  });
+</script>
+
+</body>
+</html>

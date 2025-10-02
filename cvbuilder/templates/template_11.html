@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Standard Resume</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #1a237e;
+            --secondary-color: #303f9f;
+            --accent-color: #5c6bc0;
+            --light-bg: #f5f5f5;
+            --text-dark: #212121;
+            --text-light: #757575;
+        }
+        
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background-color: #f9f9f9;
+            color: var(--text-dark);
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .resume-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            padding: 40px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        /* Header */
+        .academic-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .academic-name {
+            font-weight: 700;
+            font-size: 2.2rem;
+            margin-bottom: 5px;
+            color: var(--primary-color);
+            letter-spacing: 0.5px;
+        }
+        
+        .academic-title {
+            font-weight: 400;
+            font-size: 1.2rem;
+            color: var(--text-light);
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+        
+        .contact-info {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            font-size: 0.95rem;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+        }
+        
+        .contact-item:before {
+            content: "|";
+            margin: 0 8px;
+            color: var(--accent-color);
+        }
+        
+        .contact-item:first-child:before {
+            display: none;
+        }
+        
+        /* Sections */
+        .academic-section {
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid var(--accent-color);
+        }
+        
+        /* Education */
+        .education-item {
+            margin-bottom: 20px;
+        }
+        
+        .degree {
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .institution {
+            font-weight: 600;
+            color: var(--secondary-color);
+            margin-bottom: 5px;
+        }
+        
+        .education-details {
+            font-style: italic;
+            color: var(--text-light);
+            margin-bottom: 5px;
+        }
+        
+        .thesis-title {
+            margin-top: 8px;
+            padding-left: 20px;
+            position: relative;
+            font-style: italic;
+        }
+        
+        .thesis-title:before {
+            content: '"';
+            position: absolute;
+            left: 0;
+        }
+        
+        .thesis-title:after {
+            content: '"';
+        }
+        
+        /* Experience */
+        .experience-item {
+            margin-bottom: 20px;
+        }
+        
+        .position {
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .organization {
+            font-weight: 600;
+            color: var(--secondary-color);
+            margin-bottom: 5px;
+        }
+        
+        .experience-date {
+            font-style: italic;
+            color: var(--text-light);
+            margin-bottom: 8px;
+        }
+        
+        /* Publications */
+        .publication-item {
+            margin-bottom: 15px;
+            padding-left: 20px;
+            text-indent: -20px;
+        }
+        
+        .publication-authors {
+            font-weight: 600;
+        }
+        
+        .publication-year {
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+        
+        .publication-title {
+            font-style: italic;
+        }
+        
+        .publication-journal {
+            font-weight: 600;
+        }
+        
+        /* Teaching */
+        .teaching-item {
+            margin-bottom: 15px;
+        }
+        
+        .course-title {
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+        
+        .course-details {
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+        
+        /* Awards */
+        .award-item {
+            margin-bottom: 10px;
+        }
+        
+        .award-name {
+            font-weight: 600;
+        }
+        
+        .award-org {
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .resume-container {
+                padding: 25px;
+            }
+            
+            .academic-name {
+                font-size: 1.8rem;
+            }
+            
+            .contact-info {
+                flex-direction: column;
+                align-items: center;
+                gap: 5px;
+            }
+            
+            .contact-item:before {
+                display: none;
+            }
+        }
+        
+        @media print {
+            body {
+                background: none;
+                padding: 0;
+            }
+            
+            .resume-container {
+                box-shadow: none;
+                border: none;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="resume-container">
+        <!-- Header -->
+        <div class="academic-header">
+            <h1 class="academic-name">{{ personal_info.full_name }}</h1>
+            <div class="contact-info">
+                <div class="contact-item">{% if personal_info.address %}{{ personal_info.address }}<br>{% endif %} </div>
+                <div class="contact-item">{{ personal_info.email }}</div>
+                <div class="contact-item">{{ personal_info.phone }}</div>
+                <div class="contact-item">{% if personal_info.linkedin %}<a href="{{ personal_info.linkedin }}" class="ms-5">{{ personal_info.linkedin }}</a><br>{% endif %}</div>
+ </div>
+        </div>
+
+         <div class="corporate-section">
+    {% if summary %}
+
+                    <h2 class="section-title">About</h2>
+                    <p>{{ summary|safe }}</p>
+    {% endif %}
+
+                </div>
+        
+        <!-- Education -->
+        <div class="academic-section">
+            <h2 class="section-title">Education</h2>
+            {% if education and education.0 %}
+            <div class="education-item">
+                {% for edu in education %}
+        {% if edu.degree or edu.field or edu.institution or edu.start_date or edu.end_date or edu.gpa %}
+            <p>
+                <div class="degree">{% if edu.degree or edu.field %}
+                    <strong>{{ edu.degree }} {{ edu.field }}</strong><br>
+                {% endif %}</div>
+                <div class="institution">{% if edu.institution %}{{ edu.institution }}<br>{% endif %}</div>
+                <div class="education-details">{% if edu.start_date or edu.end_date %}
+                    {{ edu.start_date }} - {{ edu.end_date }}<br>
+                {% endif %}</div>
+                <div class="thesis-title">{% if edu.gpa %}<em>GPA: {{ edu.gpa }}</em>{% endif %}</div>
+             {% endif %}
+    {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        <div class="academic-section">
+            {% if projects and projects.0 %}
+    <div class="section-title">Projects</div>
+    {% for p in projects %}
+    <p>
+        <strong>{{ p.name }}</strong>{% if p.tools %} <span class="text-muted">({{ p.tools }})</span>{% endif %}<br>
+        {% if p.link %}<a href="{{ p.link }}" target="_blank">View Project</a><br>{% endif %}
+        {{ p.description }}
+    </p>
+    {% endfor %}
+    {% endif %}
+
+        </div>
+        
+        <!-- Academic Appointments -->
+        
+        <!-- Publications -->
+      
+        <!-- Teaching Experience -->
+        <div class="academic-section">
+              {% if work_experience and work_experience.0 %}
+            <h2 class="section-title">Teaching Experience</h2>
+            <div class="teaching-item">
+                 {% for job in work_experience %}
+                <div class="course-title">{{ job.title }}<br>{{ job.company }}{% if job.location %}, {{ job.location }}{% endif %}<br>
+        {{ job.start_date }}{{ job.end_date }}</div>
+                <div class="course-details">
+                    {% if job.responsibilities %}
+        <ul>
+            {% for r in job.responsibilities %}
+            <li>{{ r }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}</div>
+          {% endfor %}
+    {% endif %}
+
+            </div>
+        </div>
+        
+        <!-- Grants and Awards -->
+        <div class="academic-section">
+            {% if certifications and certifications.0 %}
+            <h2 class="section-title">Certifications</h2>
+            <div class="award-item">
+                 {% for cert in certifications %}
+                <div class="award-name"><strong>{{ cert.name }}</strong> <br>{{ cert.issuer }} ({{ cert.date }})</div>
+               {% endfor %}
+            </div>
+             {% endif %}
+            
+        </div>
+           {% if languages and languages.0 %}
+    <div class="section-title">Languages</div>
+    <ul>
+        {% for lang in languages %}
+        <li>{{ lang.name }}  - {{ lang.level }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    <!-- Interests -->
+       {% if interests and interests.0 %}
+    <div class="section-title">Interests</div>
+    <ul>
+        {% for interest in interests %}
+        <li>{{ interest }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    <!-- References -->
+    {% if references and references.0 %}
+    <div class="academic-section">
+        <h2 class="section-title">References</h2>
+        {% for ref in references %}
+        <div class="award-item">
+            <div class="award-name">{{ ref.name }}</div>
+            <div class="award-org">{{ ref.position }}, {{ ref.organization }}</div>
+            <div class="award-org">{{ ref.email }} | {{ ref.phone }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+   
+
+</div>
+<!-- Buttons -->
+{% if not is_pdf %}
+<!-- Sticky Bottom Toolbar -->
+<div class="fixed-bottom bg-white border-top py-2 shadow no-print text-center">
+  <div class="container d-flex justify-content-center align-items-center flex-wrap gap-3">
+
+   <!-- Button Row -->
+<div class="d-flex align-items-center justify-content-center gap-3 flex-wrap">
+
+  <!-- Edit Button -->
+  <a href="{% url 'edit_resume' resume.id template_id %}" class="btn btn-warning d-flex align-items-center">
+    <i class="fas fa-edit me-2 "></i>Edit Resume
+  </a>   
+
+  <!-- Download Dropdown -->
+  <div class="btn-group">
+    <button type="button" class="btn btn-success dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown" aria-expanded="false">
+      <i class="fas fa-download me-2"></i>Download
+    </button>
+    <ul class="dropdown-menu">
+      <li>
+        <a class="dropdown-item" href="{% url 'download_resume_pdf' resume.id template_id %}">
+          <i class="fas fa-file-pdf me-2 text-danger"></i>PDF Format
+        </a>
+      </li>
+      <li>
+        <a class="dropdown-item" href="{% url 'download_word_resume' resume.id template_id %}">
+          <i class="fas fa-file-word me-2 text-primary"></i>Word Format
+        </a>
+      </li>
+    </ul>
+  </div>
+
+</div>
+
+    <!-- Color Picker -->
+    <label for="colorPicker" class="ms-2 mb-0"><strong>Choose Resume Color:</strong></label>
+    <input type="color" id="colorPicker" value="#c46531" class="form-control form-control-color ms-2" title="Choose your color">
+  </div>
+</div>
+{% endif %}
+
+</body>
+</html>
+
+<style>
+  :root {
+  --theme-color: #c46531;
+  --secondary-color: #c46531;
+}
+
+  /* Resume styles using the variable */
+  .user-name {
+    color: var(--theme-color);
+    font-weight: bold;
+  }
+
+  .section-title {
+    color: var(--theme-color);
+    border-bottom: 2px solid var(--theme-color);
+    font-weight: bold;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+  }
+
+  hr {
+    border-top: 2px solid var(--theme-color);
+  }
+
+  .custom-color {
+    color: var(--theme-color);
+  }
+
+  .custom-border {
+    border-color: var(--theme-color) !important;
+  }
+</style>
+
+<script>
+  const colorPicker = document.getElementById("colorPicker");
+
+  colorPicker.addEventListener("input", function () {
+    const selectedColor = this.value;
+    document.documentElement.style.setProperty('--theme-color', selectedColor);
+    document.documentElement.style.setProperty('--secondary-color', selectedColor);
+  });
+</script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

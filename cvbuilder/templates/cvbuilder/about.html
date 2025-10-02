@@ -1,0 +1,31 @@
+{% extends "cvbuilder/base.html" %}
+{% block title %}About - Resume  Builder{% endblock %}
+
+{% block content %}
+<div class="text-center mb-5">
+    <h2 class="mb-3">About Resume  Builder</h2>
+    <p class="lead text-muted">Your one-stop solution for building professional resumes with ease and efficiency.</p>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <h4>Why Choose Resume  Builder?</h4>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">✅ Easy-to-use templates</li>
+            <li class="list-group-item">✅ Professional designs</li>
+            <li class="list-group-item">✅ Instant PDF downloads</li>
+            <li class="list-group-item">✅ Free and open-source</li>
+        </ul>
+    </div>
+    <div class="col-md-6">
+        <h4>Our Mission</h4>
+        <p>
+            At Resume  Builder, we aim to empower job seekers, students, and professionals by providing a simple yet powerful tool to craft compelling resumes. Whether you're applying for your first internship or your dream job, our platform helps you stand out.
+        </p>
+    </div>
+</div>
+
+<div class="mt-5 text-center">
+    <a href="{% url 'template_list' %}" class="btn btn-primary btn-lg">Start Building Your Resume</a>
+</div>
+{% endblock %}

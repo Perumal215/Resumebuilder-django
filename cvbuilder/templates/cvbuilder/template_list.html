@@ -1,0 +1,87 @@
+{% extends "cvbuilder/base.html" %}
+{% load static %}
+
+{% block title %}Choose a Resume Template{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5" >
+    <div class="container">
+        <h2 class="mb-5 text-center text-dark fw-bold display-5">Find Your Ideal Resume Design</h2> {# Larger, darker heading #}
+        <div class="row">
+            {% for template in templates %}
+            <div class="col-md-4 mb-4">
+                <div class="card border-0 rounded-lg shadow-lg h-100 template-card"> 
+                    <img src="{% static template.image %}" class="card-img-top rounded-top-lg" alt="{{ template.name }}" style="object-fit: cover; height: 280px;">
+                    <div class="card-body text-center d-flex flex-column justify-content-between p-4"> 
+                        <h5 class="card-title text-secondary mb-3 fs-4">{{ template.name }}</h5>
+                        
+                        
+                        <a href="{% static template.image %}" class="btn btn-info btn-sm mb-2 rounded-pill p-2 mb-3"  >View Demo</a>
+                        
+<a href="{% url 'create_resume' %}?template={{ template.id }}" class="btn btn-outline-success btn-lg mt-auto rounded-pill">Use This Template</a>                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
+
+
+
+
+<style>
+    /* Custom CSS for template cards and buttons */
+    .template-card {
+        transition: all 0.3s ease-in-out;
+        border: 2px solid transparent; /* Subtle border for hover effect */
+    }
+
+    .template-card:hover {
+        transform: translateY(-7px) scale(1.02); /* More pronounced lift and slight enlarge */
+        box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.25) !important;
+        border-color: #007bff; /* Primary color border on hover */
+    }
+
+    .template-button {
+        border-width: 2px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+
+    .template-button:hover {
+        background-color: #007bff;
+        color: white;
+        transform: scale(1.05); /* Button grows slightly on hover */
+    }
+
+    /* Adjusting border radius for images and cards */
+    .rounded-top-lg {
+        border-top-left-radius: .5rem !important;
+        border-top-right-radius: .5rem !important;
+    }
+    .rounded-lg {
+        border-radius: .5rem !important;
+    }
+
+    /* Styles for the "View Demo" button */
+    .btn-info {
+        background-color: #17a2b8; /* Bootstrap info color */
+        border-color: #17a2b8;
+        color: white;
+    }
+    .btn-info:hover {
+        background-color: #138496;
+        border-color: #117a8b;
+    }
+    .btn-outline-success {
+        color: #28a745;
+        border-color: #28a745;
+    }
+    .btn-outline-success:hover {
+        background-color: #28a745;
+        color: white;
+    }
+</style>

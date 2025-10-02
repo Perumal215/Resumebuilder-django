@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ personal_info.full_name }} - Resume</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: #1a1a1a;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .top-bar {
+            width: 100%;
+            background: #f9b003;
+            color: #222;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 5px 38px 5px 0;
+            font-size: 1.06em;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+        .top-bar span {
+            margin: 0 15px;
+        }
+        .top-bar a { color: #1a1a1a; text-decoration: underline; }
+        .resume-container {
+            max-width: 900px;
+            background: #fff;
+            margin: 0 auto 0 auto;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 6px 32px rgba(0,0,0,0.19);
+            display: flex;
+            flex-direction: row;
+            overflow: hidden;
+        }
+        .sidebar {
+            background: #f6f6f4;
+            width: 270px;
+            min-width: 230px;
+            padding: 42px 26px 36px 26px;
+            border-right: 6px solid #2f2d2d;
+        }
+        .profile-pic {
+            width: 110px;
+            height: 110px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 5px solid #f9b003;
+            display: block;
+            margin: 0 auto 22px auto;
+            background: #eee3cd;
+        }
+        .sidebar-section {
+            background: #fff8eb;
+            border-left: 4px solid #f9b003;
+            margin-bottom: 18px;
+            padding: 14px 12px 10px 18px;
+            box-shadow: 0 2px 6px #f9b00322;
+            border-radius: 4px;
+        }
+        .sidebar-section h3 {
+            margin: 0 0 7px 0;
+            color: #23201a;
+            font-size: 1.15em;
+            font-weight: 700;
+        }
+        .sidebar-section small {
+            color: #23201a;
+        }
+        .main-content {
+            flex: 1;
+            padding: 52px 46px 36px 46px;
+            background: #fff;
+        }
+        .main-content h1 {
+            margin: 0 0 9px 0;
+            font-size: 2.4em;
+            font-weight: 800;
+            letter-spacing: 1.2px;
+            color: #23201a;
+        }
+        .main-content h2 {
+            border-left: 12px solid #f9b003;
+            margin: 32px 0 14px 0;
+            padding: 0 0 2px 12px;
+            font-size: 1.11em;
+            color: #23201a;
+            letter-spacing: 1.5px;
+            background: #fff;
+        }
+        .main-content ul {
+            margin: 6px 0 14px 20px;
+            padding: 0;
+        }
+        .main-content li {
+            margin-bottom: 5px;
+            font-size: 1em;
+        }
+        .section-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 38px;
+        }
+        .column {
+            flex: 1;
+            min-width: 260px;
+        }
+        .achievements-list, .exp-list {
+            margin: 6px 0 2px 0;
+            padding: 0 0 0 0;
+            list-style: disc inside;
+        }
+        .exp-title { font-weight: bold; }
+    </style>
+</head>
+<body>
+<!-- Top Bar -->
+
+<div class="resume-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        {% if personal_info.profile_image %}
+            <img src="{{ personal_info.profile_image.url }}" alt="Profile Photo" class="profile-pic">
+        {% endif %}
+        <div class="sidebar-section">
+          <span>Phone: {{ personal_info.phone|default:"0917 - XXX - XXXX" }}</span><br>
+    <span>Email: <a href="mailto:{{ personal_info.email }}">{{ personal_info.email }}</a></span><br>
+            <h3>Address</h3> <small>{{ personal_info.address }}</small>
+           
+        </div>
+        
+        <div class="sidebar-section">
+            <h3>Projects</h3>
+            <small>
+                {% if projects and projects.0 %}
+
+    {% for p in projects %}
+    <p>
+        <strong>{{ p.name }}</strong>{% if p.tools %} <span class="text-muted">({{ p.tools }})</span>{% endif %}<br>
+        {% if p.link %}<a href="{{ p.link }}" target="_blank">View Project</a><br>{% endif %}
+        {{ p.description }}
+    </p>
+    {% endfor %}
+    {% endif %}
+            </small>
+        </div>
+          <div class="sidebar-section">
+            <h3>Interests</h3>
+            <small>
+               {% if interests and interests.0 %}
+    
+    <ul>
+        {% for interest in interests %}
+        <li>{{ interest }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+            </small>
+        </div>
+    </div>
+    <!-- Main Content -->
+    <div class="main-content">
+        <h1>{{ personal_info.full_name }}</h1>
+        <div style="font-size:1em; margin-bottom:17px; font-weight:bold;">
+            {% if personal_info.title %}{{ personal_info.title }}{% endif %}
+        </div>
+        <!-- Career Objective -->
+        {% if summary %}
+            <h2>CAREER OBJECTIVE</h2>
+            <p>{{ summary|safe }}</p>
+        {% endif %}
+        <!-- Skills -->
+        {% if skills %}
+            <h2>TECHNICAL SKILLS</h2>
+            <ul>
+                {% for skill in skills %}
+                    <li>{{ skill }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        {% if extra_skills %}
+            <h2>PERSONAL SKILLS</h2>
+            <ul>
+                {% for skill in extra_skills %}
+                    <li>{{ skill }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        <!-- Education -->
+        {% if education %}
+            <h2>EDUCATION</h2>
+            {% for edu in education %}
+                <div style="font-weight: bold;">{{ edu.degree }} ({{ edu.start_date }} – {{ edu.end_date }})</div>
+                <div>{{ edu.institution }}</div>
+                <div>{{ edu.location }}</div>
+                {% if edu.gpa %}<div><em>GPA: {{ edu.gpa }}</em></div>{% endif %}
+            {% endfor %}
+        {% endif %}
+        <!-- Achievements & Experience (side-by-side) -->
+        <div class="section-row">
+            {% if awards %}
+            <div class="column">
+                <h2>ACHIEVEMENTS / RESPONSIBILITIES</h2>
+                <ul class="achievements-list">
+                    {% for a in awards %}
+                        <li>
+                            <strong>{{ a.title }}</strong>{% if a.year %} ({{ a.year }}){% endif %}<br>
+                            {% if a.organization %}{{ a.organization }}<br>{% endif %}
+                            {% if a.description %}<em>{{ a.description }}</em>{% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            {% if work_experience %}
+            <div class="column">
+                <h2>PRE-PROFESSIONAL EXPERIENCE</h2>
+                <ul class="exp-list">
+                    {% for job in work_experience %}
+                        <li>
+                            <span class="exp-title">{{ job.title }}</span> – {{ job.company }}
+                            <br>
+                            <span style="font-size:0.94em; font-style:italic;">({{ job.start_date }} - {{ job.end_date|default:"Present" }})</span>
+                            <div style="font-size:0.96em;">{{ job.description }}</div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+        <!-- Optional Sections -->
+        {% if certifications %}
+            <h2>CERTIFICATIONS</h2>
+            <ul>
+                {% for cert in certifications %}
+                    <li>
+                        <strong>{{ cert.name }}</strong> {{ cert.issuer }} ({{ cert.date }})
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        {% if languages %}
+            <h2>LANGUAGES</h2>
+            <ul>
+                {% for lang in languages %}
+                    <li>{{ lang.name }} - {{ lang.level }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+</div>
+<!-- Buttons -->
+{% if not is_pdf %}
+<!-- Sticky Bottom Toolbar -->
+<div class="fixed-bottom bg-white border-top py-2 shadow no-print text-center">
+  <div class="container d-flex justify-content-center align-items-center flex-wrap gap-3">
+
+   <!-- Button Row -->
+<div class="d-flex align-items-center justify-content-center gap-3 flex-wrap">
+
+  <!-- Edit Button -->
+  <a href="{% url 'edit_resume' resume.id template_id %}" class="btn btn-warning d-flex align-items-center">
+    <i class="fas fa-edit me-2 "></i>Edit Resume
+  </a>   
+
+  <!-- Download Dropdown -->
+  <div class="btn-group">
+    <button type="button" class="btn btn-success dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown" aria-expanded="false">
+      <i class="fas fa-download me-2"></i>Download
+    </button>
+    <ul class="dropdown-menu">
+      <li>
+        <a class="dropdown-item" href="{% url 'download_resume_pdf' resume.id template_id %}">
+          <i class="fas fa-file-pdf me-2 text-danger"></i>PDF Format
+        </a>
+      </li>
+      <li>
+        <a class="dropdown-item" href="{% url 'download_word_resume' resume.id template_id %}">
+          <i class="fas fa-file-word me-2 text-primary"></i>Word Format
+        </a>
+      </li>
+    </ul>
+  </div>
+
+</div>
+
+    <!-- Color Picker -->
+    <label for="colorPicker" class="ms-2 mb-0"><strong>Choose Resume Color:</strong></label>
+    <input type="color" id="colorPicker" value="#c46531" class="form-control form-control-color ms-2" title="Choose your color">
+  </div>
+</div>
+{% endif %}
+
+</body>
+</html>
+
+<style>
+  :root {
+  --theme-color: #c46531;
+  --secondary-color: #c46531;
+}
+
+  /* Resume styles using the variable */
+  .user-name {
+    color: var(--theme-color);
+    font-weight: bold;
+  }
+
+  .section-title {
+    color: var(--theme-color);
+    border-bottom: 2px solid var(--theme-color);
+    font-weight: bold;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+  }
+
+  hr {
+    border-top: 2px solid var(--theme-color);
+  }
+
+  .custom-color {
+    color: var(--theme-color);
+  }
+
+  .custom-border {
+    border-color: var(--theme-color) !important;
+  }
+</style>
+
+<script>
+  const colorPicker = document.getElementById("colorPicker");
+
+  colorPicker.addEventListener("input", function () {
+    const selectedColor = this.value;
+    document.documentElement.style.setProperty('--theme-color', selectedColor);
+    document.documentElement.style.setProperty('--secondary-color', selectedColor);
+  });
+</script>
+
+</body>
+</html>

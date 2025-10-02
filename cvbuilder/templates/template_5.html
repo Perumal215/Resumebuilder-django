@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ personal_info.full_name }} - Resume</title>
+ <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f8f9fa;
+      color: #333;
+    }
+    .resume {
+      display: flex;
+      max-width: 800px;
+      margin: 30px auto;
+      background-color: #fff;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .left-panel {
+      width: 35%;
+      background-color: #f3f4f6;
+      padding: 30px;
+    }
+    .right-panel {
+      width: 65%;
+      padding: 30px;
+      position: relative;
+    }
+    .highlight {
+      font-size: 18rem;
+      color: #f0b300;
+      font-weight: bold;
+      position: absolute;
+      top: -90px;
+      right: 30px;
+    }
+    h1 {
+      font-size: 2.5rem;
+      font-weight: bold;
+    }
+    .section-title {
+      text-transform: uppercase;
+      font-weight: bold;
+      font-size: 14px;
+      margin-top: 30px;
+      letter-spacing: 1px;
+    }
+    .item-title {
+      font-weight: bold;
+    }
+    ul {
+      padding-left: 1.2rem;
+    }
+    .contact i {
+      margin-right: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="resume">
+  <!-- Left Panel -->
+  <div class="left-panel">
+    <h1 class="mb-4">{{ personal_info.full_name }}</h1>
+
+    <div class="section">
+      <div class="section-title">Contact</div>
+      <ul class="list-unstyled contact mt-2">
+        <li><i class="bi bi-envelope-fill text-warning"></i> {{ personal_info.email }}</li>
+        <li><i class="bi bi-telephone-fill text-warning"></i> {{ personal_info.phone }}</li>
+        <li><i class="bi bi-geo-alt-fill text-warning"></i> {{ personal_info.address }}</li>
+      </ul>
+    </div>
+
+    {% if education %}
+    <div class="section">
+      <div class="section-title">Education and Training</div>
+      {% for edu in education %}
+        <div class="mt-2">
+          <div><strong>{{ edu.start_date }}</strong></div>
+          <div class="item-title">{{ edu.degree }} in {{ edu.field }}</div>
+          <div>{{ edu.institution }}</div>
+        </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Right Panel -->
+  <div class="right-panel">
+    <div class="highlight">”</div>
+
+    {% if summary %}
+    <div class="section">
+      <div class="section-title">Summary</div>
+      <p>{{ summary|safe }}</p>
+    </div>
+    {% endif %}
+
+    {% if skills %}
+    <div class="section">
+      <div class="section-title">Skills</div>
+      <ul class="row">
+        {% for skill in skills %}
+        <li class="col-6">{{ skill }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    {% if work_experience %}
+    <div class="section">
+      <div class="section-title">Experience</div>
+      {% for job in work_experience %}
+      <div class="mt-3">
+        <div class="item-title">{{ job.title }}</div>
+        <div class="text-muted">{{ job.company }} | {{ job.start_date }}  {{ job.end_date }}</div>
+        <ul>
+          {% for point in job.responsibilities %}
+          <li>{{ point }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+ 
+</div>
+ <!-- Buttons -->
+{% if not is_pdf %}
+<!-- Sticky Bottom Toolbar -->
+<div class="fixed-bottom bg-white border-top py-2 shadow no-print text-center">
+  <div class="container d-flex justify-content-center align-items-center flex-wrap gap-3">
+
+   <!-- Button Row -->
+<div class="d-flex align-items-center justify-content-center gap-3 flex-wrap">
+
+  <!-- Edit Button -->
+  <a href="{% url 'edit_resume' resume.id template_id %}" class="btn btn-warning d-flex align-items-center">
+    <i class="fas fa-edit me-2 "></i>Edit Resume
+  </a>   
+
+  <!-- Download Dropdown -->
+  <div class="btn-group">
+    <button type="button" class="btn btn-success dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown" aria-expanded="false">
+      <i class="fas fa-download me-2"></i>Download
+    </button>
+    <ul class="dropdown-menu">
+      <li>
+        <a class="dropdown-item" href="{% url 'download_resume_pdf' resume.id template_id %}">
+          <i class="fas fa-file-pdf me-2 text-danger"></i>PDF Format
+        </a>
+      </li>
+      <li>
+        <a class="dropdown-item" href="{% url 'download_word_resume' resume.id template_id %}">
+          <i class="fas fa-file-word me-2 text-primary"></i>Word Format
+        </a>
+      </li>
+    </ul>
+  </div>
+
+</div>
+
+    <!-- Color Picker -->
+    <label for="colorPicker" class="ms-2 mb-0"><strong>Choose Resume Color:</strong></label>
+    <input type="color" id="colorPicker" value="#c46531" class="form-control form-control-color ms-2" title="Choose your color">
+  </div>
+</div>
+{% endif %}
+
+</body>
+</html>
+
+<style>
+  :root {
+  --theme-color: #c46531;
+  --secondary-color: #c46531;
+}
+
+  /* Resume styles using the variable */
+  .user-name {
+    color: var(--theme-color);
+    font-weight: bold;
+  }
+
+  .section-title {
+    color: var(--theme-color);
+    border-bottom: 2px solid var(--theme-color);
+    font-weight: bold;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+  }
+
+  hr {
+    border-top: 2px solid var(--theme-color);
+  }
+
+  .custom-color {
+    color: var(--theme-color);
+  }
+
+  .custom-border {
+    border-color: var(--theme-color) !important;
+  }
+</style>
+
+<script>
+  const colorPicker = document.getElementById("colorPicker");
+
+  colorPicker.addEventListener("input", function () {
+    const selectedColor = this.value;
+    document.documentElement.style.setProperty('--theme-color', selectedColor);
+    document.documentElement.style.setProperty('--secondary-color', selectedColor);
+  });
+</script>
+
+

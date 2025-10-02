@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Resume</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+
+    <style>
+        body { background-color: #f8f9fa; padding-top: 20px; padding-bottom: 40px; }
+        .form-container { background-color: white; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.1); padding: 30px; margin-bottom: 30px; }
+        .section-title { color: #0d6efd; border-bottom: 2px solid #0d6efd; padding-bottom: 8px; margin-top: 30px; margin-bottom: 20px; }
+        .btn-add-section { margin-top: 10px; margin-bottom: 20px; }
+        .dynamic-section { background-color: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #0d6efd; }
+        .remove-btn { margin-top: 10px; }
+        .image-preview { max-width: 150px; max-height: 150px; margin-top: 10px; display: block; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="form-container">
+    <h1 class="text-center mb-4">Edit Your Resume</h1>
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="hidden" name="template_id" value="{{ template_id }}">
+      
+      <!-- Profile Image -->
+      <label class="form-label">Profile Image</label>
+      {% if profile_image_url %}
+        <img src="{{ profile_image_url }}" class="image-preview">
+      {% endif %}
+      <input type="file" name="profile_image" id="profile_image" accept="image/*" class="form-control">
+
+      <!-- Personal Info -->
+      <h2 class="section-title">Personal Information</h2>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Full Name</label>
+          <input type="text" class="form-control" name="full_name" value="{{ personal_info.full_name|default_if_none:'' }}">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control" name="email" value="{{ personal_info.email|default_if_none:'' }}">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Phone</label>
+          <input type="text" class="form-control" id="phone" name="phone" value="{{ personal_info.phone|default_if_none:'' }}">
+          <span id="phoneError" class="text-danger small"></span>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Address</label>
+          <textarea name="address" class="form-control">{{ personal_info.address|default_if_none:'' }}</textarea>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">LinkedIn</label>
+          <input type="url" class="form-control" name="linkedin" value="{{ personal_info.linkedin|default_if_none:'' }}">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Website</label>
+          <input type="url" class="form-control" name="website" value="{{ personal_info.website|default_if_none:'' }}">
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <h2 class="section-title mt-4">Professional Summary</h2>
+      <textarea name="summary" id="summary" rows="8" class="form-control">{{ summary|striptags }}</textarea>
+
+      <!-- Education -->
+      <h2 class="section-title">Education</h2>
+      <div id="education-section">
+        {% if education %}
+          {% for edu in education %}
+            <div class="dynamic-section">
+              <div class="row g-3">
+                <div class="col-md-6"><input type="text" name="edu_degree[]" value="{{ edu.degree }}" placeholder="Degree" class="form-control"></div>
+                <div class="col-md-6"><input type="text" name="edu_field[]" value="{{ edu.field }}" placeholder="Field" class="form-control"></div>
+                <div class="col-md-6"><input type="text" name="edu_institution[]" value="{{ edu.institution }}" placeholder="Institution" class="form-control"></div>
+                <div class="col-md-3"><input type="date" name="edu_start[]" value="{{ edu.start_date }}" class="form-control"></div>
+                <div class="col-md-3"><input type="date" name="edu_end[]" value="{{ edu.end_date }}" class="form-control"></div>
+                <div class="col-md-3"><input type="number" step="0.01" name="edu_gpa[]" value="{{ edu.gpa }}" class="form-control"></div>
+              </div>
+              <button type="button" class="btn btn-outline-danger btn-sm remove-btn" onclick="this.parentElement.remove()">Remove</button>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="dynamic-section">
+            <div class="row g-3">
+              <div class="col-md-6"><input type="text" name="edu_degree[]" placeholder="Degree" class="form-control"></div>
+              <div class="col-md-6"><input type="text" name="edu_field[]" placeholder="Field" class="form-control"></div>
+              <div class="col-md-6"><input type="text" name="edu_institution[]" placeholder="Institution" class="form-control"></div>
+              <div class="col-md-3"><input type="date" name="edu_start[]" class="form-control"></div>
+              <div class="col-md-3"><input type="date" name="edu_end[]" class="form-control"></div>
+              <div class="col-md-3"><input type="number" step="0.01" name="edu_gpa[]" class="form-control"></div>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+      <button type="button" class="btn btn-outline-primary btn-add-section" onclick="addEducationSection()">Add Education</button>
+
+      <!-- Work Experience -->
+      <h2 class="section-title">Work Experience</h2>
+      <div id="work-section">
+        {% if work_experience %}
+          {% for work in work_experience %}
+            <div class="dynamic-section">
+              <input type="text" name="work_title[]" value="{{ work.title }}" placeholder="Job Title" class="form-control mb-2">
+              <input type="text" name="work_company[]" value="{{ work.company }}" placeholder="Company" class="form-control mb-2">
+              <input type="text" name="work_location[]" value="{{ work.location }}" placeholder="Location" class="form-control mb-2">
+              <input type="date" name="work_start[]" value="{{ work.start_date }}" class="form-control mb-2">
+              <input type="date" name="work_end[]" value="{{ work.end_date }}" class="form-control mb-2">
+              <textarea name="work_responsibilities[]" class="form-control">{{ work.responsibilities|join:"\n" }}</textarea>
+              <button type="button" class="btn btn-outline-danger btn-sm remove-btn" onclick="this.parentElement.remove()">Remove</button>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="dynamic-section">
+            <input type="text" name="work_title[]" placeholder="Job Title" class="form-control mb-2">
+            <input type="text" name="work_company[]" placeholder="Company" class="form-control mb-2">
+            <input type="text" name="work_location[]" placeholder="Location" class="form-control mb-2">
+            <input type="date" name="work_start[]" class="form-control mb-2">
+            <input type="date" name="work_end[]" class="form-control mb-2">
+            <textarea name="work_responsibilities[]" class="form-control"></textarea>
+          </div>
+        {% endif %}
+      </div>
+      <button type="button" class="btn btn-outline-primary btn-add-section" onclick="addWorkSection()">Add Work</button>
+
+      <!-- Skills -->
+      <h2 class="section-title">Skills</h2>
+      <input type="text" name="skills" class="form-control" value="{% if skills %}{{ skills|join:', ' }}{% endif %}">
+
+      <!-- Interests -->
+      <h2 class="section-title">Interests</h2>
+      <input type="text" name="interests" class="form-control" value="{% if interests %}{{ interests|join:', ' }}{% endif %}">
+
+      <div class="mt-4">
+        <button type="submit" name="action" value="preview" class="btn btn-primary">Preview Resume</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function addEducationSection() {
+  document.getElementById('education-section').insertAdjacentHTML('beforeend', `
+    <div class="dynamic-section">
+      <div class="row g-3">
+        <div class="col-md-6"><input type="text" name="edu_degree[]" placeholder="Degree" class="form-control"></div>
+        <div class="col-md-6"><input type="text" name="edu_field[]" placeholder="Field" class="form-control"></div>
+        <div class="col-md-6"><input type="text" name="edu_institution[]" placeholder="Institution" class="form-control"></div>
+        <div class="col-md-3"><input type="date" name="edu_start[]" class="form-control"></div>
+        <div class="col-md-3"><input type="date" name="edu_end[]" class="form-control"></div>
+        <div class="col-md-3"><input type="number" step="0.01" name="edu_gpa[]" class="form-control"></div>
+      </div>
+      <button type="button" class="btn btn-outline-danger btn-sm remove-btn" onclick="this.parentElement.remove()">Remove</button>
+    </div>
+  `);
+}
+function addWorkSection() {
+  document.getElementById('work-section').insertAdjacentHTML('beforeend', `
+    <div class="dynamic-section">
+      <input type="text" name="work_title[]" placeholder="Job Title" class="form-control mb-2">
+      <input type="text" name="work_company[]" placeholder="Company" class="form-control mb-2">
+      <input type="text" name="work_location[]" placeholder="Location" class="form-control mb-2">
+      <input type="date" name="work_start[]" class="form-control mb-2">
+      <input type="date" name="work_end[]" class="form-control mb-2">
+      <textarea name="work_responsibilities[]" class="form-control"></textarea>
+      <button type="button" class="btn btn-outline-danger btn-sm remove-btn" onclick="this.parentElement.remove()">Remove</button>
+    </div>
+  `);
+}
+</script>
+</body>
+</html>
