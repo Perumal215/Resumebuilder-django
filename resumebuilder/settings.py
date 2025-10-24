@@ -30,8 +30,7 @@ SECRET_KEY = 'django-insecure-7*cc=xol#66p+)s1o$=hmggcl8k&)9_*tjkylu(t-%j4)#rqi1
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [' Resumebuilder-SA.onrender.com', '*']
-
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -55,8 +54,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
-
 ]
 
 ROOT_URLCONF = 'resumebuilder.urls'
@@ -138,6 +135,4 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [ BASE_DIR / "static" ]
-
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
