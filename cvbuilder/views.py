@@ -10,12 +10,9 @@ from docx.shared import Inches
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 from io import BytesIO
 import os
-import requests
-import re
-from django.conf import settings
-from django.shortcuts import render
-from openai import OpenAI
-
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+from .models import Resume
 
 def index(request):
     return render(request, 'cvbuilder/index.html')
@@ -213,10 +210,7 @@ def preview_resume(request, resume_id, template_id):
     })
 
 
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib import messages
-from .models import Resume
-import json
+
 
 def edit_resume(request, resume_id, template_id):
     resume = get_object_or_404(Resume, pk=resume_id)
@@ -333,7 +327,6 @@ def edit_resume(request, resume_id, template_id):
                 "certifications": certifications,
                 "languages": languages,
                 "profile_image_url": resume.profile_image.url if resume.profile_image else None,
-                # If uploaded now, it won't have a URL, so you could convert it to base64 preview if desired
             }
             return render(request, f'template_{template_id}.html', context)
 

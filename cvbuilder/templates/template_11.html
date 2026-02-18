@@ -390,7 +390,7 @@
 <div class="d-flex align-items-center justify-content-center gap-3 flex-wrap">
 
   <!-- Edit Button -->
-  <a href="{% url 'edit_resume' resume.id template_id %}" class="btn btn-warning d-flex align-items-center">
+  <a href="{% url 'edit_resume' resume_id template_id %}" class="btn btn-warning d-flex align-items-center">
     <i class="fas fa-edit me-2 "></i>Edit Resume
   </a>   
 
@@ -401,12 +401,12 @@
     </button>
     <ul class="dropdown-menu">
       <li>
-        <a class="dropdown-item" href="{% url 'download_resume_pdf' resume.id template_id %}">
+        <a class="dropdown-item" href="{% url 'download_resume_pdf' resume_id template_id %}">
           <i class="fas fa-file-pdf me-2 text-danger"></i>PDF Format
         </a>
       </li>
       <li>
-        <a class="dropdown-item" href="{% url 'download_word_resume' resume.id template_id %}">
+        <a class="dropdown-item" href="{% url 'download_word_resume' resume_id template_id %}">
           <i class="fas fa-file-word me-2 text-primary"></i>Word Format
         </a>
       </li>

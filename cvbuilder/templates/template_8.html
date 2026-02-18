@@ -205,5 +205,88 @@
         <!-- Add more feature boxes as needed (certifications, languages, awards, projects, etc.) -->
     </div>
 </div>
+<!-- Buttons -->
+{% if not is_pdf %}
+<!-- Sticky Bottom Toolbar -->
+<div class="fixed-bottom bg-white border-top py-2 shadow no-print text-center">
+  <div class="container d-flex justify-content-center align-items-center flex-wrap gap-3">
+
+   <!-- Button Row -->
+<div class="d-flex align-items-center justify-content-center gap-3 flex-wrap">
+
+  <!-- Edit Button -->
+  <a href="{% url 'edit_resume' resume_id template_id %}" class="btn btn-warning d-flex align-items-center">
+    <i class="fas fa-edit me-2 "></i>Edit Resume
+  </a>   
+
+  <!-- Download Dropdown -->
+  <div class="btn-group">
+    <button type="button" class="btn btn-success dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown" aria-expanded="false">
+      <i class="fas fa-download me-2"></i>Download
+    </button>
+    <ul class="dropdown-menu">
+      <li>
+        <a class="dropdown-item" href="{% url 'download_resume_pdf' resume_id template_id %}">
+          <i class="fas fa-file-pdf me-2 text-danger"></i>PDF Format
+        </a>
+      </li>
+      <li>
+        <a class="dropdown-item" href="{% url 'download_word_resume' resume_id template_id %}">
+          <i class="fas fa-file-word me-2 text-primary"></i>Word Format
+        </a>
+      </li>
+    </ul>
+  </div>
+
+</div>
+</div>
+</div>
+{% endif %}
+
+</body>
+</html>
+
+<style>
+  :root {
+  --theme-color: #c46531;
+  --secondary-color: #c46531;
+}
+
+  /* Resume styles using the variable */
+  .user-name {
+    color: var(--theme-color);
+    font-weight: bold;
+  }
+
+  .section-title {
+    color: var(--theme-color);
+    border-bottom: 2px solid var(--theme-color);
+    font-weight: bold;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+  }
+
+  hr {
+    border-top: 2px solid var(--theme-color);
+  }
+
+  .custom-color {
+    color: var(--theme-color);
+  }
+
+  .custom-border {
+    border-color: var(--theme-color) !important;
+  }
+</style>
+
+<script>
+  const colorPicker = document.getElementById("colorPicker");
+
+  colorPicker.addEventListener("input", function () {
+    const selectedColor = this.value;
+    document.documentElement.style.setProperty('--theme-color', selectedColor);
+    document.documentElement.style.setProperty('--secondary-color', selectedColor);
+  });
+</script>
 </body>
 </html>
